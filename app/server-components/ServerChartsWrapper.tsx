@@ -3,7 +3,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { APP_CONFIG, CHART_TYPES } from '../lib/config';
+import { APP_CONFIG } from '../lib/config';
 import { PageConfig } from '../lib/types';
 import ConfigPanel from '../components/ConfigPanel';
 import ServerChartContainer from './ServerChartContainer';

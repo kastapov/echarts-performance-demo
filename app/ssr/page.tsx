@@ -38,16 +38,16 @@ async function fetchAllChartData(
 export default async function SSRPage({
                                         searchParams,
                                       }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: Record<string, string | string[] | undefined>;
 }) {
   // Get data points parameter from URL if present
-  const dataPointsParam = searchParams['dataPoints'];
+  const dataPointsParam = searchParams?.dataPoints;
   const dataPoints = dataPointsParam
       ? parseInt(Array.isArray(dataPointsParam) ? dataPointsParam[0] : dataPointsParam)
       : 1000000;
 
   // Get charts count parameter from URL if present
-  const chartsCountParam = searchParams['chartsCount'];
+  const chartsCountParam = searchParams?.chartsCount;
   const chartsCount = chartsCountParam
       ? parseInt(Array.isArray(chartsCountParam) ? chartsCountParam[0] : chartsCountParam)
       : APP_CONFIG.CHARTS_PER_PAGE;

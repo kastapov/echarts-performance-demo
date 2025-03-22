@@ -67,7 +67,6 @@ export default function ChartWrapper({
             window.removeEventListener('resize', handleResize);
         };
         // Only depend on id to prevent recreating the chart instance
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     // Update chart when data changes

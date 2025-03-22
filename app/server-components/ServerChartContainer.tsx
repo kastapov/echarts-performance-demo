@@ -194,7 +194,6 @@ export default function ServerChartContainer({
         loadData();
 
         // IMPORTANT: We only depend on the paramsString to prevent multiple re-renders
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paramsString]);
 
     // Cleanup effect

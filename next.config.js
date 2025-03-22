@@ -4,7 +4,7 @@ const nextConfig = {
     reactStrictMode: false,
 
     // Configure webpack for ECharts
-    webpack: (config, { isServer }) => {
+    webpack: (config) => {
         // Fix for "Can't import the named export" error with echarts
         config.resolve.alias = {
             ...config.resolve.alias,

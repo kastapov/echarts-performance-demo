@@ -1,6 +1,5 @@
 // app/api/chart-data/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { APP_CONFIG } from '../../lib/config';
 import { fetchLargeDataset } from '../../lib/api';
 import { ChartData } from '../../lib/types';
 
