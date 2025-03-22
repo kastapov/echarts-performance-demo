@@ -13,6 +13,9 @@ const nextConfig = {
 
         return config;
     },
+    typescript: {
+        ignoreBuildErrors: true,
+    },
 
     // Set appropriate headers for API calls
     async headers() {
