@@ -27,10 +27,7 @@ export async function GET(request: NextRequest) {
 
         // Return the chart data
         return NextResponse.json(chartData, {
-            status: 200,
-            headers: {
-                'Cache-Control': `public, max-age=${APP_CONFIG.CACHE_TTL}`,
-            },
+            status: 200
         });
     } catch (error) {
         console.error('Error processing chart data request:', error);

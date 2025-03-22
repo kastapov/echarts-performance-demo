@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Enable React strict mode
-    reactStrictMode: true,
+    // Disable React strict mode to prevent double rendering in development
+    reactStrictMode: false,
 
-    // Configure webpack for Web Workers if needed
+    // Configure webpack for ECharts
     webpack: (config, { isServer }) => {
         // Fix for "Can't import the named export" error with echarts
         config.resolve.alias = {
@@ -12,13 +12,6 @@ const nextConfig = {
         };
 
         return config;
-    },
-
-    // Enable correct handling of API routes
-    experimental: {
-        // Only needed for older Next.js versions
-        // Remove this if using Next.js 13.4+
-        serverComponentsExternalPackages: [],
     },
 
     // Set appropriate headers for API calls

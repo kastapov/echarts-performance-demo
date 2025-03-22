@@ -4,23 +4,13 @@ import { APP_CONFIG } from './config';
 import { ChartData } from './types';
 
 // Cache for API responses
-const apiCache = new Map<string, { data: any; timestamp: number }>();
-
 /**
  * Fetches large dataset from the data API
  */
 export async function fetchLargeDataset(chartType: string, dataPoints: number = 1000000): Promise<ChartData> {
   try {
-    const url = `${APP_CONFIG.DATA_API_URL}/api/data/1m?type=${chartType}&count=${dataPoints}`;
-    const cacheKey = url;
-    const now = Date.now();
-
-    // Check cache first
-    const cachedData = apiCache.get(cacheKey);
-    if (cachedData && now - cachedData.timestamp < APP_CONFIG.CACHE_TTL * 1000) {
-      return formatChartData(cachedData.data, chartType);
-    }
-
+    const uniqueParam = `&timestamp=${new Date().getTime()}`;
+    const url = `${APP_CONFIG.DATA_API_URL}/api/data/1m?type=${chartType}&count=${dataPoints}${uniqueParam}`;
     console.log(`Fetching data from ${url}`);
     const response = await axios.get(url);
     const data = response.data;
@@ -30,9 +20,6 @@ export async function fetchLargeDataset(chartType: string, dataPoints: number = 
       count: data.count,
       sampleData: data.data?.slice(0, 3) || []
     });
-
-    // Store in cache
-    apiCache.set(cacheKey, { data, timestamp: now });
 
     const formattedData = formatChartData(data, chartType);
     console.log('Formatted chart data:', {

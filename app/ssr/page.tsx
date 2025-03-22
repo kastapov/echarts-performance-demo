@@ -46,15 +46,20 @@ export default async function SSRPage({
       ? parseInt(Array.isArray(dataPointsParam) ? dataPointsParam[0] : dataPointsParam)
       : 1000000;
 
+  // Get charts count parameter from URL if present
+  const chartsCountParam = searchParams['chartsCount'];
+  const chartsCount = chartsCountParam
+      ? parseInt(Array.isArray(chartsCountParam) ? chartsCountParam[0] : chartsCountParam)
+      : APP_CONFIG.CHARTS_PER_PAGE;
+
   // Server-side pre-fetching of chart data
-  const defaultChartCount = APP_CONFIG.CHARTS_PER_PAGE;
-  const initialChartData = await fetchAllChartData(defaultChartCount, dataPoints);
+  const initialChartData = await fetchAllChartData(chartsCount, dataPoints);
 
   // Generate page configuration
   const pageConfig: PageConfig = {
     title: "Server-Side Rendering (SSR) Approach",
     description: "Charts rendered using getServerSideProps with full data processing on the server",
-    charts: Array.from({ length: defaultChartCount }, (_, i) => {
+    charts: Array.from({ length: chartsCount }, (_, i) => {
       const chartTypeIndex = i % CHART_TYPES.length;
 
       return {
@@ -75,6 +80,7 @@ export default async function SSRPage({
               initialChartData={initialChartData}
               pageConfig={pageConfig}
               initialDataPoints={dataPoints}
+              initialChartsCount={chartsCount}
           />
         </Suspense>
       </div>
