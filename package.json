@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:inspect": "NODE_OPTIONS='--inspect' next start",
     "lint": "next lint"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "next": "15.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^2.15.1",
     "swr": "^2.3.3"
   },
   "devDependencies": {
