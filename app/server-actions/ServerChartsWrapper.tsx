@@ -1,4 +1,4 @@
-// app/server-components/ServerChartsWrapper.tsx
+// app/server-actions/ServerChartsWrapper.tsx
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from 'react';

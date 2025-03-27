@@ -1,4 +1,4 @@
-// app/server-components/page.tsx
+// app/server-actions/page.tsx
 import { Suspense } from 'react';
 import { APP_CONFIG, CHART_TYPES } from '../lib/config';
 import { PageConfig } from '../lib/types';
@@ -6,7 +6,7 @@ import ServerChartsWrapper from './ServerChartsWrapper';
 
 export async function generateMetadata() {
     return {
-        title: 'Server Components Approach - ECharts Performance Demo',
+        title: 'Server Actions Approach - ECharts Performance Demo',
     };
 }
 
@@ -29,8 +29,8 @@ export default async function ServerComponentsPage({
 
     // Generate page configuration
     const pageConfig: PageConfig = {
-        title: "Server Components Approach",
-        description: "Charts rendered using React Server Components with streaming data",
+        title: "Server Actions Approach",
+        description: "Charts rendered using React Server Actions with streaming data",
         charts: Array.from({ length: chartsCount }, (_, i) => {
             const chartTypeIndex = i % CHART_TYPES.length;
 

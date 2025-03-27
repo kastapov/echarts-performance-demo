@@ -24,8 +24,7 @@ export default function Home() {
                 <div className="mt-2 text-sm text-gray-500">
                   <p>Data is fetched and processed on the server before sending HTML to the client.</p>
                   <ul className="list-disc list-inside mt-2">
-                    <li>Complete pre-rendering</li>
-                    <li>SEO-friendly</li>
+                    <li>No data fetch in the browser on page load</li>
                     <li>Potentially slower TTFB</li>
                   </ul>
                 </div>
@@ -43,22 +42,21 @@ export default function Home() {
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="px-4 py-5 sm:p-6">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Server Components
+                  Server Actions
                 </h3>
                 <div className="mt-2 text-sm text-gray-500">
-                  <p>React Server Components process data on the server but with more granular control.</p>
+                  <p>Functions that run on the server but can be called directly from client components.</p>
                   <ul className="list-disc list-inside mt-2">
-                    <li>Component-level server processing</li>
-                    <li>Streaming and progressive rendering</li>
-                    <li>Better client/server separation</li>
+                    <li>RPC like server processing</li>
+                    <li>Internal API routes for data fetch.</li>
                   </ul>
                 </div>
                 <div className="mt-4">
                   <Link
-                      href="/server-components"
+                      href="/server-actions"
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
                   >
-                    View Server Components Demo
+                    View Server Actions Demo
                   </Link>
                 </div>
               </div>
@@ -70,7 +68,7 @@ export default function Home() {
                   Client-Side Rendering
                 </h3>
                 <div className="mt-2 text-sm text-gray-500">
-                  <p>Data is fetched and processed entirely on the client using Web Workers.</p>
+                  <p>Data is fetched and processed entirely on the client.</p>
                   <ul className="list-disc list-inside mt-2">
                     <li>Fast initial page load</li>
                     <li>Non-blocking UI with Web Workers</li>
@@ -103,7 +101,7 @@ export default function Home() {
             <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Data Size</dt>
-                <dd className="mt-1 text-sm text-gray-900">1,000,000+ points per chart</dd>
+                <dd className="mt-1 text-sm text-gray-900">Up to 1,000,000 points per chart</dd>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Chart Library</dt>
@@ -123,8 +121,7 @@ export default function Home() {
                   <ul className="list-disc list-inside">
                     <li>Initial page load time</li>
                     <li>Time to interactive charts</li>
-                    <li>Memory usage</li>
-                    <li>UI responsiveness</li>
+                    <li>Memory usage (client)</li>
                   </ul>
                 </dd>
               </div>

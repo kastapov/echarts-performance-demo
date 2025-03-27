@@ -86,9 +86,8 @@ const AnalysisPage = () => {
         { scenario: 'SEO & initial content visibility', best: 'SSR', notes: 'Provides complete HTML at load' },
         { scenario: 'Frequent chart updates', best: 'Client', notes: 'Best chart refresh performance' },
         { scenario: 'Large datasets (10+ charts)', best: 'Client', notes: 'Minimal impact on performance as chart count increases' },
-        { scenario: 'Memory constrained environments', best: 'SSR', notes: 'Lowest initial JS heap usage' },
         { scenario: 'Layout stability priority', best: 'SSR', notes: 'Best overall CLS values' },
-        { scenario: 'Small datasets', best: 'Server Components', notes: 'Good performance with smaller data volumes' }
+        { scenario: 'Small datasets', best: 'Server Actions', notes: 'Good performance with smaller data volumes' }
     ];
 
     return (
@@ -105,19 +104,7 @@ const AnalysisPage = () => {
                         onClick={() => setActiveTab('production')}
                         className={`px-4 py-2 text-sm font-medium ${activeTab === 'production' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
                     >
-                        Production (5 Charts)
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('localprod')}
-                        className={`px-4 py-2 text-sm font-medium ${activeTab === 'localprod' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                    >
-                        Local Prod (10 Charts)
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('smalldata')}
-                        className={`px-4 py-2 text-sm font-medium ${activeTab === 'smalldata' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                    >
-                        Small Dataset
+                        Production
                     </button>
                     <button
                         onClick={() => setActiveTab('development')}
@@ -143,7 +130,7 @@ const AnalysisPage = () => {
                                     <Legend />
                                     <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
                                     <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions" />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -160,28 +147,9 @@ const AnalysisPage = () => {
                                     <PolarRadiusAxis angle={30} domain={[0, 5]} />
                                     <Radar name="SSR" dataKey="SSR" stroke="#8884d8" fill="#8884d8" fillOpacity={0.5} />
                                     <Radar name="Client" dataKey="Client" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.5} />
-                                    <Radar name="Server Components" dataKey="ServerComponents" stroke="#ffc658" fill="#ffc658" fillOpacity={0.5} />
+                                    <Radar name="Server Actions" dataKey="ServerComponents" stroke="#ffc658" fill="#ffc658" fillOpacity={0.5} />
                                     <Legend />
                                 </RadarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Chart Refresh Processing Time (Dev, Slow 4G)</h2>
-                        <p className="mb-4 text-gray-600">Lower is better - Shows how performance scales with more charts</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartRefreshData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }} />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
-                                </BarChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
@@ -191,19 +159,39 @@ const AnalysisPage = () => {
             {activeTab === 'production' && (
                 <>
                     <div>
-                        <h2 className="text-xl font-bold mb-2">Production Environment (5 Charts, 1M datapoints each)</h2>
+                        <h2 className="text-xl font-bold mb-2">Production Environment (5 Charts, 1M datapoints
+                            each)</h2>
                         <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={productionData.metrics}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Small Dataset Performance (1 Chart, 10K datapoints)</h2>
+                        <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={smallChartData.metrics}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -216,14 +204,14 @@ const AnalysisPage = () => {
                             <div className="h-64">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={productionData.heap}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
-                                        <Tooltip />
-                                        <Legend />
-                                        <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                        <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                        <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
+                                        <CartesianGrid strokeDasharray="3 3"/>
+                                        <XAxis dataKey="name"/>
+                                        <YAxis/>
+                                        <Tooltip/>
+                                        <Legend/>
+                                        <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                        <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                        <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -235,83 +223,20 @@ const AnalysisPage = () => {
                             <div className="h-64">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={productionData.nodes}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
-                                        <Tooltip />
-                                        <Legend />
-                                        <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                        <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                        <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
+                                        <CartesianGrid strokeDasharray="3 3"/>
+                                        <XAxis dataKey="name"/>
+                                        <YAxis/>
+                                        <Tooltip/>
+                                        <Legend/>
+                                        <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                        <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                        <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
                         </div>
                     </div>
                 </>
-            )}
-
-            {activeTab === 'localprod' && (
-                <>
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Local Production Build (10 Charts, 1M datapoints each)</h2>
-                        <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={localProdData.metrics}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Network Transfer Size</h2>
-                        <p className="mb-4 text-gray-600">Data transferred over network</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={localProdData.network}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </>
-            )}
-
-            {activeTab === 'smalldata' && (
-                <div>
-                    <h2 className="text-xl font-bold mb-2">Small Dataset Performance (1 Chart, 10K datapoints)</h2>
-                    <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
-                    <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={smallChartData.metrics}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
             )}
 
             {activeTab === 'development' && (
@@ -322,14 +247,14 @@ const AnalysisPage = () => {
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={domLoadedData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }} />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }}/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -341,14 +266,72 @@ const AnalysisPage = () => {
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={pageLoadData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }} />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Components" />
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }}/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Local Production Build (10 Charts, 1M datapoints
+                            each)</h2>
+                        <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={localProdData.metrics}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Network Transfer Size</h2>
+                        <p className="mb-4 text-gray-600">Data transferred over network</p>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={localProdData.network}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xl font-bold mb-2">Chart Refresh Processing Time (Dev, Slow 4G)</h2>
+                        <p className="mb-4 text-gray-600">Lower is better - Shows how performance scales with more
+                            charts</p>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartRefreshData}>
+                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <XAxis dataKey="name"/>
+                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }}/>
+                                    <Tooltip/>
+                                    <Legend/>
+                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
+                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
+                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
