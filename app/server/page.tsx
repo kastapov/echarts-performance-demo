@@ -1,7 +1,6 @@
 // app/server/page.tsx
 import { fetchLargeDataset } from "@/app/lib/api";
 import ChartWrapper from "@/app/components/ChartWrapper";
-import { ApiDataPoints } from "@/app/lib/types";
 import ConfigPanel from "@/app/components/ConfigPanel";
 import { parseChartParams } from "@/app/lib/configUtils";
 

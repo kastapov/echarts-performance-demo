@@ -2,15 +2,18 @@
 
 // app/client/page.tsx
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import ChartWrapper from "@/app/components/ChartWrapper";
 import { ApiDataPoints } from "@/app/lib/types";
 import { fetchLargeDataset } from "@/app/lib/api";
 import ConfigPanel from "@/app/components/ConfigPanel";
 import { parseChartParams } from "@/app/lib/configUtils";
 
-export default function ClientPage() {
-  const searchParams = useSearchParams();
+export default function ClientPage({
+                                     searchParams
+                                   }: {
+  searchParams: Record<string, string | string[] | undefined>
+}) {
+  // Parse search params from props instead of using useSearchParams hook
   const { numCharts, dataPoints } = parseChartParams(searchParams);
 
   const [chartsData, setChartsData] = useState<ApiDataPoints[]>(
@@ -63,7 +66,7 @@ export default function ClientPage() {
         {chartsData.map((chartData, index) => (
           <div key={index} className="h-[400px]">
             <ChartWrapper
-              title={`Scatter Chart ${index + 1} (${dataPoints.toLocaleString()} points)`}
+              title={`Client Chart ${index + 1} (${dataPoints.toLocaleString()} points)`}
               chartData={chartData}
               loading={loading}
             />

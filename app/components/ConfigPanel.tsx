@@ -1,7 +1,7 @@
 'use client';
 
 // app/components/ConfigPanel.tsx
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 interface ConfigPanelProps {
@@ -14,39 +14,23 @@ export default function ConfigPanel({
                                       defaultDataPoints = 1000
                                     }: ConfigPanelProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // Initialize state from URL or defaults
+  // Initialize state from defaults
   const [numCharts, setNumCharts] = useState<number>(defaultCharts);
   const [dataPoints, setDataPoints] = useState<number>(defaultDataPoints);
 
-  // On mount, read from URL if available
+  // Update state when props change
   useEffect(() => {
-    const chartsParam = searchParams.get('charts');
-    const dataParam = searchParams.get('dataPoints');
-
-    if (chartsParam) {
-      const parsed = parseInt(chartsParam, 10);
-      if (!isNaN(parsed) && parsed >= 1 && parsed <= 10) {
-        setNumCharts(parsed);
-      }
-    }
-
-    if (dataParam) {
-      const parsed = parseInt(dataParam, 10);
-      if (!isNaN(parsed)) {
-        setDataPoints(parsed);
-      }
-    }
-  }, [searchParams]);
+    setNumCharts(defaultCharts);
+    setDataPoints(defaultDataPoints);
+  }, [defaultCharts, defaultDataPoints]);
 
   // Update URL when settings change
   const updateURL = () => {
-    const params = new URLSearchParams(searchParams);
-    params.set('charts', numCharts.toString());
-    params.set('dataPoints', dataPoints.toString());
-    router.push(`${pathname}?${params.toString()}`);
+    // Get the current path
+    const path = window.location.pathname;
+    const url = `${path}?charts=${numCharts}&dataPoints=${dataPoints}`;
+    router.push(url);
   };
 
   const handleChartsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

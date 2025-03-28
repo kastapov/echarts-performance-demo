@@ -1,10 +1,11 @@
-// app/components/NavBar.tsx
 "use client";
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function NavBar() {
+// Create a wrapper component that uses the hooks
+function NavBarContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -62,5 +63,40 @@ export default function NavBar() {
         </div>
       </div>
     </nav>
+  );
+}
+
+// Fallback component for when the content is loading
+function NavBarFallback() {
+  return (
+    <nav className="bg-blue-600 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <span className="text-xl font-bold">ECharts Performance Demo</span>
+            </div>
+            <div className="ml-10 flex items-baseline space-x-4">
+              {/* Simplified links without dynamic parameters */}
+              <Link href="/" className="px-3 py-2 rounded-md text-sm font-medium">Home</Link>
+              <Link href="/server" className="px-3 py-2 rounded-md text-sm font-medium">Server</Link>
+              <Link href="/server-actions" className="px-3 py-2 rounded-md text-sm font-medium">Server Actions</Link>
+              <Link href="/client" className="px-3 py-2 rounded-md text-sm font-medium">Client</Link>
+              <Link href="/internal-api" className="px-3 py-2 rounded-md text-sm font-medium">Internal API</Link>
+              <span className="px-3 py-2 rounded-md text-sm font-medium">Static Bundle</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// Main NavBar component that wraps the content with Suspense
+export default function NavBar() {
+  return (
+    <Suspense fallback={<NavBarFallback />}>
+      <NavBarContent />
+    </Suspense>
   );
 }
