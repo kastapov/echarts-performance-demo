@@ -1,15 +1,14 @@
 'use client';
 
-// app/client/page.tsx
+// app/internal-api/page.tsx
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ChartWrapper from "@/app/components/ChartWrapper";
 import { ApiDataPoints } from "@/app/lib/types";
-import { fetchLargeDataset } from "@/app/lib/api";
 import ConfigPanel from "@/app/components/ConfigPanel";
 import { parseChartParams } from "@/app/lib/configUtils";
 
-export default function ClientPage() {
+export default function InternalApiPage() {
   const searchParams = useSearchParams();
   const { numCharts, dataPoints } = parseChartParams(searchParams);
 
@@ -24,12 +23,16 @@ export default function ClientPage() {
       try {
         setLoading(true);
 
-        // Call fetch function directly from client
+        // Use internal API route
         const promises = Array(numCharts).fill(null).map(() =>
-          fetchLargeDataset('scatter', dataPoints)
+          fetch(`/api/chart-data?type=scatter&count=${dataPoints}`)
+            .then(res => {
+              if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+              return res.json();
+            })
         );
-        const data = await Promise.all(promises);
 
+        const data = await Promise.all(promises);
         setChartsData(data);
         setError(null);
       } catch (err) {
@@ -45,10 +48,10 @@ export default function ClientPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Client-side Charts</h1>
+      <h1 className="text-3xl font-bold mb-6">Internal API Charts</h1>
       <p className="mb-4 text-gray-700">
-        Chart data is fetched directly from the client. The page loads immediately,
-        but charts only display once data has been fetched.
+        Chart data is fetched from the client using internal Next.js API routes.
+        The page loads immediately, but charts only display once data has been fetched.
       </p>
 
       <ConfigPanel defaultCharts={numCharts} defaultDataPoints={dataPoints} />

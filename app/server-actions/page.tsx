@@ -1,59 +1,75 @@
+'use client';
+
 // app/server-actions/page.tsx
-import { Suspense } from 'react';
-import { APP_CONFIG, CHART_TYPES } from '../lib/config';
-import { PageConfig } from '../lib/types';
-import ServerChartsWrapper from './ServerChartsWrapper';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import ChartWrapper from "@/app/components/ChartWrapper";
+import { ApiDataPoints } from "@/app/lib/types";
+import { getChartData } from "@/app/lib/actions";
+import ConfigPanel from "@/app/components/ConfigPanel";
+import { parseChartParams } from "@/app/lib/configUtils";
 
-export async function generateMetadata() {
-    return {
-        title: 'Server Actions Approach - ECharts Performance Demo',
-    };
-}
+export default function ServerActionsPage() {
+    const searchParams = useSearchParams();
+    const { numCharts, dataPoints } = parseChartParams(searchParams);
 
-export default async function ServerComponentsPage({
-                                                       searchParams,
-                                                   }: {
-    searchParams?: Record<string, string | string[] | undefined>;
-}) {
-    // Get data points parameter from URL if present
-    const dataPointsParam = searchParams?.dataPoints;
-    const dataPoints = dataPointsParam
-        ? parseInt(Array.isArray(dataPointsParam) ? dataPointsParam[0] : dataPointsParam)
-        : 1000000;
+    const [chartsData, setChartsData] = useState<ApiDataPoints[]>(
+      Array(numCharts).fill({ type: 'scatter', count: 0, data: [] })
+    );
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Get charts count parameter from URL if present
-    const chartsCountParam = searchParams?.chartsCount;
-    const chartsCount = chartsCountParam
-        ? parseInt(Array.isArray(chartsCountParam) ? chartsCountParam[0] : chartsCountParam)
-        : APP_CONFIG.CHARTS_PER_PAGE;
+    useEffect(() => {
+        const loadChartsData = async () => {
+            try {
+                setLoading(true);
 
-    // Generate page configuration
-    const pageConfig: PageConfig = {
-        title: "Server Actions Approach",
-        description: "Charts rendered using React Server Actions with streaming data",
-        charts: Array.from({ length: chartsCount }, (_, i) => {
-            const chartTypeIndex = i % CHART_TYPES.length;
+                // Call server action for each chart
+                const promises = Array(numCharts).fill(null).map(() =>
+                  getChartData('scatter', dataPoints)
+                );
+                const data = await Promise.all(promises);
 
-            return {
-                id: `server-chart-${i}`,
-                title: `${CHART_TYPES[chartTypeIndex]} Chart - ${(dataPoints / 1000).toFixed(0)}K Datapoints`,
-                type: CHART_TYPES[chartTypeIndex],
-            };
-        }),
-    };
+                setChartsData(data);
+                setError(null);
+            } catch (err) {
+                setError('Failed to load chart data');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadChartsData();
+    }, [numCharts, dataPoints]);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl font-bold mb-2">{pageConfig.title}</h1>
-            <p className="text-gray-500 mb-6">{pageConfig.description}</p>
+      <div className="container mx-auto p-6">
+          <h1 className="text-3xl font-bold mb-6">Server Actions Charts</h1>
+          <p className="mb-4 text-gray-700">
+              Chart data is fetched using Server Actions. The page loads immediately,
+              but charts only display once data has been fetched.
+          </p>
 
-            <Suspense fallback={<div className="animate-pulse h-20 bg-gray-100 rounded mb-8"></div>}>
-                <ServerChartsWrapper
-                    pageConfig={pageConfig}
-                    initialDataPoints={dataPoints}
-                    initialChartsCount={chartsCount}
-                />
-            </Suspense>
-        </div>
+          <ConfigPanel defaultCharts={numCharts} defaultDataPoints={dataPoints} />
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {chartsData.map((chartData, index) => (
+                <div key={index} className="h-[400px]">
+                    <ChartWrapper
+                      title={`Scatter Chart ${index + 1} (${dataPoints.toLocaleString()} points)`}
+                      chartData={chartData}
+                      loading={loading}
+                    />
+                </div>
+              ))}
+          </div>
+      </div>
     );
 }

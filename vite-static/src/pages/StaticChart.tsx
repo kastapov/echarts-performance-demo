@@ -1,16 +1,13 @@
-'use client';
-
-// app/client/page.tsx
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import ChartWrapper from "@/app/components/ChartWrapper";
-import { ApiDataPoints } from "@/app/lib/types";
-import { fetchLargeDataset } from "@/app/lib/api";
-import ConfigPanel from "@/app/components/ConfigPanel";
-import { parseChartParams } from "@/app/lib/configUtils";
+import { useSearchParams } from '../lib/hooks/useSearchParams';
+import ChartWrapper from "../components/ChartWrapper";
+import { ApiDataPoints } from "../lib/types";
+import { fetchLargeDataset } from "../lib/api";
+import ConfigPanel from "../components/ConfigPanel";
+import { parseChartParams } from "../lib/configUtils";
 
-export default function ClientPage() {
-  const searchParams = useSearchParams();
+export default function StaticChart() {
+  const [searchParams] = useSearchParams();
   const { numCharts, dataPoints } = parseChartParams(searchParams);
 
   const [chartsData, setChartsData] = useState<ApiDataPoints[]>(
@@ -45,10 +42,11 @@ export default function ClientPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Client-side Charts</h1>
+      <h1 className="text-3xl font-bold mb-6">Static Bundle Charts</h1>
       <p className="mb-4 text-gray-700">
-        Chart data is fetched directly from the client. The page loads immediately,
-        but charts only display once data has been fetched.
+        This page is served as a completely static bundle via Vite.
+        All chart data is fetched from the client, but the page itself
+        is independent of the Next.js application.
       </p>
 
       <ConfigPanel defaultCharts={numCharts} defaultDataPoints={dataPoints} />
@@ -63,7 +61,7 @@ export default function ClientPage() {
         {chartsData.map((chartData, index) => (
           <div key={index} className="h-[400px]">
             <ChartWrapper
-              title={`Scatter Chart ${index + 1} (${dataPoints.toLocaleString()} points)`}
+              title={`Static Chart ${index + 1} (${dataPoints.toLocaleString()} points)`}
               chartData={chartData}
               loading={loading}
             />

@@ -1,8 +1,5 @@
-'use client';
-
-// app/components/ConfigPanel.tsx
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from '../lib/hooks/useSearchParams';
 
 interface ConfigPanelProps {
   defaultCharts?: number;
@@ -13,9 +10,7 @@ export default function ConfigPanel({
                                       defaultCharts = 1,
                                       defaultDataPoints = 1000
                                     }: ConfigPanelProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize state from URL or defaults
   const [numCharts, setNumCharts] = useState<number>(defaultCharts);
@@ -46,7 +41,7 @@ export default function ConfigPanel({
     const params = new URLSearchParams(searchParams);
     params.set('charts', numCharts.toString());
     params.set('dataPoints', dataPoints.toString());
-    router.push(`${pathname}?${params.toString()}`);
+    setSearchParams(params);
   };
 
   const handleChartsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
