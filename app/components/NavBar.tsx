@@ -58,6 +58,9 @@ function NavBarContent() {
               >
                 Static Bundle
               </a>
+              <Link href={`/analysis`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/analysis')}`}>
+                Analysis
+              </Link>
             </div>
           </div>
         </div>

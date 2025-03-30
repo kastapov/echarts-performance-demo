@@ -1,377 +1,287 @@
 "use client";
+// src/app/performance-analysis/page.tsx
 
-import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import React, { useMemo, useState } from 'react';
+import ReactECharts from 'echarts-for-react';
+import type { EChartsOption, SeriesOption } from 'echarts';
+import type { TooltipFormatterCallback } from 'echarts/types/dist/shared';
 
-const AnalysisPage = () => {
-    const [activeTab, setActiveTab] = useState('overview');
+interface PerformanceDataEntry {
+  method: string;
+  charts: number;
+  points: number;
+  pointsLabel: string;
+  resourceSize: number;
+  finishTime: number;
+  domContentLoaded: number;
+  loadTime: number;
+}
 
-    // Production Environment Data (5 Charts, 1M datapoints each)
-    const productionData = {
-        metrics: [
-            { name: 'LCP (s)', SSR: 8.81, Client: 0.17, ServerComponents: 0.30 },
-            { name: 'CLS', SSR: 0.16, Client: 0.17, ServerComponents: 0.38 },
-            { name: 'Total Time (s)', SSR: 16.10, Client: 5.55, ServerComponents: 5.68 },
-            { name: 'Scripting (s)', SSR: 5.62, Client: 4.05, ServerComponents: 3.36 }
-        ],
-        heap: [
-            { name: 'Min JS Heap (MB)', SSR: 1.8, Client: 305, ServerComponents: 298 },
-            { name: 'Max JS Heap (MB)', SSR: 392, Client: 628, ServerComponents: 661 }
-        ],
-        nodes: [
-            { name: 'Min Nodes', SSR: 4, Client: 456, ServerComponents: 298 },
-            { name: 'Max Nodes', SSR: 498, Client: 849, ServerComponents: 594 }
-        ]
-    };
+interface ChartDataItem {
+  value: number | null;
+  method: string;
+  pointLabel: string;
+  dclTime: number | null;
+  dclToLoadDur: number | null;
+  loadToFinishDur: number | null;
+  totalFinishTime: number | null;
+}
 
-    // Local Production Build (10 Charts, 1M datapoints each)
-    const localProdData = {
-        metrics: [
-            { name: 'LCP (s)', SSR: 4.39, Client: 0.06, ServerComponents: 0.08 },
-            { name: 'CLS', SSR: 0.08, Client: 0.68, ServerComponents: 0.40 },
-            { name: 'Total Time (s)', SSR: 7.35, Client: 5.73, ServerComponents: 5.59 }
-        ],
-        network: [
-            { name: 'Network Transfer (MB)', SSR: 8.1, Client: 7.7, ServerComponents: 25.3 }
-        ]
-    };
+const performanceData: PerformanceDataEntry[] = [
+  { method: "Server", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 437, domContentLoaded: 295, loadTime: 418 },
+  { method: "Server", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 549, domContentLoaded: 420, loadTime: 522 },
+  { method: "Server", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 1300, domContentLoaded: 1260, loadTime: 1270 },
+  { method: "Server", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 7740, domContentLoaded: 7710, loadTime: 7720 },
+  { method: "Server", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 759, domContentLoaded: 360, loadTime: 650 },
+  { method: "Server", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 1140, domContentLoaded: 1080, loadTime: 1120 },
+  { method: "Server", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 5500, domContentLoaded: 5280, loadTime: 5430 },
+  { method: "Server Actions", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 485, domContentLoaded: 31, loadTime: 116 },
+  { method: "Server Actions", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 659, domContentLoaded: 31, loadTime: 115 },
+  { method: "Server Actions", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 1230, domContentLoaded: 35, loadTime: 117 },
+  { method: "Server Actions", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 4720, domContentLoaded: 30, loadTime: 115 },
+  { method: "Server Actions", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 2080, domContentLoaded: 33, loadTime: 137 },
+  { method: "Server Actions", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 3970, domContentLoaded: 30, loadTime: 133 },
+  { method: "Server Actions", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 8400, domContentLoaded: 37, loadTime: 143 },
+  { method: "Client (NextJS) + Internal API", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 345, domContentLoaded: 32, loadTime: 115 },
+  { method: "Client (NextJS) + Internal API", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 489, domContentLoaded: 32, loadTime: 112 },
+  { method: "Client (NextJS) + Internal API", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 977, domContentLoaded: 30, loadTime: 112 },
+  { method: "Client (NextJS) + Internal API", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 2520, domContentLoaded: 34, loadTime: 119 },
+  { method: "Client (NextJS) + Internal API", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 546, domContentLoaded: 34, loadTime: 142 },
+  { method: "Client (NextJS) + Internal API", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 1020, domContentLoaded: 34, loadTime: 145 },
+  { method: "Client (NextJS) + Internal API", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 3500, domContentLoaded: 37, loadTime: 152 },
+  { method: "Client (NextJS) + Direct API", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 277, domContentLoaded: 32, loadTime: 123 },
+  { method: "Client (NextJS) + Direct API", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 479, domContentLoaded: 30, loadTime: 121 },
+  { method: "Client (NextJS) + Direct API", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 901, domContentLoaded: 29, loadTime: 121 },
+  { method: "Client (NextJS) + Direct API", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 2650, domContentLoaded: 31, loadTime: 124 },
+  { method: "Client (NextJS) + Direct API", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 376, domContentLoaded: 32, loadTime: 139 },
+  { method: "Client (NextJS) + Direct API", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 578, domContentLoaded: 31, loadTime: 143 },
+  { method: "Client (NextJS) + Direct API", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 1280, domContentLoaded: 32, loadTime: 142 },
+  { method: "Client (Vite) + Direct API", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1363148.8, finishTime: 246, domContentLoaded: 74, loadTime: 95 },
+  { method: "Client (Vite) + Direct API", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1572864, finishTime: 530, domContentLoaded: 75, loadTime: 94 },
+  { method: "Client (Vite) + Direct API", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3565158.4, finishTime: 804, domContentLoaded: 76, loadTime: 98 },
+  { method: "Client (Vite) + Direct API", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24222105.6, finishTime: 2370, domContentLoaded: 73, loadTime: 93 },
+  { method: "Client (Vite) + Direct API", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 335, domContentLoaded: 73, loadTime: 121 },
+  { method: "Client (Vite) + Direct API", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3565158.4, finishTime: 561, domContentLoaded: 74, loadTime: 118 },
+  { method: "Client (Vite) + Direct API", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24222105.6, finishTime: 1120, domContentLoaded: 74, loadTime: 117 },
+];
 
-    // Production (1 Chart, 10K datapoints)
-    const smallChartData = {
-        metrics: [
-            { name: 'LCP (s)', SSR: 0.76, Client: 0.15, ServerComponents: 0.32 },
-            { name: 'CLS', SSR: 0.11, Client: 0.06, ServerComponents: 0.06 },
-            { name: 'Total Time (s)', SSR: 2.59, Client: 2.05, ServerComponents: 1.97 }
-        ]
-    };
+const ALL_METHODS = [
+  "Server",
+  "Server Actions",
+  "Client (NextJS) + Internal API",
+  "Client (NextJS) + Direct API",
+  "Client (Vite) + Direct API"
+];
 
-    // Development Environment (Chart Refresh)
-    const chartRefreshData = [
-        { name: '1 Chart (1M points)', SSR: 8.2, Client: 8.4, ServerComponents: 26.4 },
-        { name: '10 Charts (1M points each)', SSR: 49.5, Client: 44.2, ServerComponents: 138.5 }
-    ];
+const POINTS_ORDER = [1000, 10000, 100000, 1000000];
+const POINTS_LABELS = ["1K", "10K", "100K", "1M"];
+const TIMING_SEGMENT_NAMES = ['Time to DCL', 'Time from DCL to Load', 'Time from Load to Finish'];
 
-    // Development Environment (Page Load)
-    const pageLoadData = [
-        { name: '1 Chart (1M points)', SSR: 19.20, Client: 11.37, ServerComponents: 10.70 },
-        { name: '10 Charts (1M points each)', SSR: 72.0, Client: 11.39, ServerComponents: 10.69 }
-    ];
+const ECHARTS_COLORS = [
+  '#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de',
+  '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'
+];
 
-    // DOM Loaded times (Dev, Slow 4G)
-    const domLoadedData = [
-        { name: '1 Chart (1M points)', SSR: 17.9, Client: 1.25, ServerComponents: 1.25 },
-        { name: '10 Charts (1M points each)', SSR: 58.72, Client: 1.28, ServerComponents: 1.23 }
-    ];
+const generateStackedTimingChartOption = (
+  chartsCount: number,
+  isolatedMethod: string | null
+): EChartsOption => {
+  const seriesData: SeriesOption[] = [];
+  const methodsToDisplay = isolatedMethod ? [isolatedMethod] : ALL_METHODS;
 
-    // LCP comparison across all dataset sizes
-    const lcpComparisonData = [
-        { name: '1 Chart (10K points), prod', SSR: 0.76, Client: 0.15, ServerComponents: 0.32 },
-        { name: '5 Charts (1M points each), prod', SSR: 8.81, Client: 0.17, ServerComponents: 0.30 },
-        { name: '10 Charts (1M points each), local', SSR: 4.39, Client: 0.06, ServerComponents: 0.08 }
-    ];
+  methodsToDisplay.forEach(methodName => {
+    const mapDataToSeriesItem = (segmentIndex: number) =>
+      POINTS_ORDER.map((pointCount, index) => {
+        const entry = performanceData.find(d => d.method === methodName && d.points === pointCount && d.charts === chartsCount);
+        let dclTime: number | null = null;
+        let dclToLoadDur: number | null = null;
+        let loadToFinishDur: number | null = null;
+        let totalFinishTime: number | null = null;
+        let value: number | null = null;
 
-    // Radar chart data for overall strengths/weaknesses
-    const radarData = [
-        { subject: 'Initial Load Speed', SSR: 2, Client: 5, ServerComponents: 4 },
-        { subject: 'Layout Stability', SSR: 5, Client: 2, ServerComponents: 3 },
-        { subject: 'Memory Efficiency', SSR: 4, Client: 3, ServerComponents: 2 },
-        { subject: 'Chart Update Speed', SSR: 4, Client: 4, ServerComponents: 1 },
-        { subject: 'Network Efficiency', SSR: 4, Client: 4, ServerComponents: 2 },
-        { subject: 'DOM Loading Speed', SSR: 1, Client: 5, ServerComponents: 5 }
-    ];
+        if (entry) {
+          dclTime = entry.domContentLoaded;
+          dclToLoadDur = Math.max(0, entry.loadTime - dclTime);
+          loadToFinishDur = Math.max(0, entry.finishTime - entry.loadTime);
+          totalFinishTime = entry.finishTime;
 
-    // Best approach recommendations
-    const recommendations = [
-        { scenario: 'Fast initial visual feedback', best: 'Client', notes: 'Consistently lowest LCP times across all datasets' },
-        { scenario: 'SEO & initial content visibility', best: 'SSR', notes: 'Provides complete HTML at load' },
-        { scenario: 'Frequent chart updates', best: 'Client', notes: 'Best chart refresh performance' },
-        { scenario: 'Large datasets (10+ charts)', best: 'Client', notes: 'Minimal impact on performance as chart count increases' },
-        { scenario: 'Layout stability priority', best: 'SSR', notes: 'Best overall CLS values' },
-        { scenario: 'Small datasets', best: 'Server Actions', notes: 'Good performance with smaller data volumes' }
-    ];
+          if (segmentIndex === 0) value = dclTime;
+          else if (segmentIndex === 1) value = dclToLoadDur;
+          else if (segmentIndex === 2) value = loadToFinishDur;
+        }
 
-    return (
-        <div className="flex flex-col gap-6 p-4">
-            <div className="flex justify-center mb-4">
-                <div className="inline-flex rounded-md shadow-sm">
-                    <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`px-4 py-2 text-sm font-medium rounded-l-lg ${activeTab === 'overview' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                    >
-                        Overall Comparison
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('production')}
-                        className={`px-4 py-2 text-sm font-medium ${activeTab === 'production' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                    >
-                        Production
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('development')}
-                        className={`px-4 py-2 text-sm font-medium rounded-r-lg ${activeTab === 'development' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                    >
-                        Development
-                    </button>
-                </div>
-            </div>
+        return {
+          value: value,
+          method: methodName,
+          pointLabel: POINTS_LABELS[index],
+          dclTime: dclTime,
+          dclToLoadDur: dclToLoadDur,
+          loadToFinishDur: loadToFinishDur,
+          totalFinishTime: totalFinishTime
+        } as ChartDataItem;
+      });
 
-            {activeTab === 'overview' && (
-                <>
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">LCP Comparison Across Environments</h2>
-                        <p className="mb-4 text-gray-600">Lower is better - Shows how each method performs with different data sizes</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={lcpComparisonData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }} />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR" />
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client" />
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+    seriesData.push({
+      name: TIMING_SEGMENT_NAMES[0],
+      type: 'bar',
+      stack: methodName,
+      emphasis: { focus: 'none' },
+      data: mapDataToSeriesItem(0),
+    });
+    seriesData.push({
+      name: TIMING_SEGMENT_NAMES[1],
+      type: 'bar',
+      stack: methodName,
+      emphasis: { focus: 'none' },
+      data: mapDataToSeriesItem(1),
+    });
+    seriesData.push({
+      name: TIMING_SEGMENT_NAMES[2],
+      type: 'bar',
+      stack: methodName,
+      emphasis: { focus: 'none' },
+      label: {
+        show: !isolatedMethod,
+        position: 'top',
+        formatter: methodName,
+        color: '#4A5568',
+        fontSize: 10,
+        distance: 5,
+        rotate: 90,
+        align: 'left',
+        verticalAlign: 'middle',
+      },
+      data: mapDataToSeriesItem(2),
+    });
+  });
 
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Strengths & Weaknesses Comparison</h2>
-                        <p className="mb-4 text-gray-600">Higher is better - Relative performance in key areas (scale: 1-5)</p>
-                        <div className="h-96">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart outerRadius={150} width={500} height={500} data={radarData}>
-                                    <PolarGrid />
-                                    <PolarAngleAxis dataKey="subject" />
-                                    <PolarRadiusAxis angle={30} domain={[0, 5]} />
-                                    <Radar name="SSR" dataKey="SSR" stroke="#8884d8" fill="#8884d8" fillOpacity={0.5} />
-                                    <Radar name="Client" dataKey="Client" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.5} />
-                                    <Radar name="Server Actions" dataKey="ServerComponents" stroke="#ffc658" fill="#ffc658" fillOpacity={0.5} />
-                                    <Legend />
-                                </RadarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </>
-            )}
+  const tooltipFormatter: TooltipFormatterCallback<any> = (params) => {
+    if (!params || typeof params !== 'object' || Array.isArray(params)) {
+      return '';
+    }
+    const embeddedData = params.data as ChartDataItem;
+    if (!embeddedData || !embeddedData.method) {
+      const pointLabel = params.name || 'N/A';
+      return `<div class="text-sm">${pointLabel} Points<br/>No data available</div>`;
+    }
 
-            {activeTab === 'production' && (
-                <>
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Production Environment (5 Charts, 1M datapoints
-                            each)</h2>
-                        <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={productionData.metrics}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+    const { method, pointLabel, dclTime, dclToLoadDur, loadToFinishDur, totalFinishTime } = embeddedData;
+    const createMarker = (color: string) =>
+      `<span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>`;
 
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Small Dataset Performance (1 Chart, 10K datapoints)</h2>
-                        <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={smallChartData.metrics}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+    let tooltipContent = `<div class="text-sm space-y-1">`;
+    tooltipContent += `<div>${pointLabel} Points</div>`;
+    tooltipContent += `<div class="font-bold text-black">${method}</div>`;
+    tooltipContent += `<div>${createMarker(ECHARTS_COLORS[0])} ${TIMING_SEGMENT_NAMES[0]}: ${dclTime?.toFixed(0) ?? 'N/A'} ms</div>`;
+    tooltipContent += `<div>${createMarker(ECHARTS_COLORS[1])} ${TIMING_SEGMENT_NAMES[1]}: ${dclToLoadDur?.toFixed(0) ?? 'N/A'} ms</div>`;
+    tooltipContent += `<div>${createMarker(ECHARTS_COLORS[2])} ${TIMING_SEGMENT_NAMES[2]}: ${loadToFinishDur?.toFixed(0) ?? 'N/A'} ms</div>`;
+    tooltipContent += `<div class="font-semibold pt-1">Total Finish: ${totalFinishTime?.toFixed(0) ?? 'N/A'} ms</div>`;
+    tooltipContent += `</div>`;
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h2 className="text-xl font-bold mb-2">JavaScript Heap Usage</h2>
-                            <p className="mb-4 text-gray-600">Memory footprint (min-max)</p>
-                            <div className="h-64">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={productionData.heap}>
-                                        <CartesianGrid strokeDasharray="3 3"/>
-                                        <XAxis dataKey="name"/>
-                                        <YAxis/>
-                                        <Tooltip/>
-                                        <Legend/>
-                                        <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                        <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                        <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
+    return tooltipContent;
+  };
 
-                        <div>
-                            <h2 className="text-xl font-bold mb-2">DOM Node Count</h2>
-                            <p className="mb-4 text-gray-600">DOM complexity (min-max)</p>
-                            <div className="h-64">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={productionData.nodes}>
-                                        <CartesianGrid strokeDasharray="3 3"/>
-                                        <XAxis dataKey="name"/>
-                                        <YAxis/>
-                                        <Tooltip/>
-                                        <Legend/>
-                                        <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                        <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                        <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            )}
+  const options: EChartsOption = {
+    color: ECHARTS_COLORS,
+    title: {
+      text: `Timing Metrics (${chartsCount} Chart${chartsCount > 1 ? 's' : ''})${isolatedMethod ? ` - ${isolatedMethod}` : ''}`,
+      left: 'center',
+      top: 10,
+      textStyle: { fontSize: 16, fontWeight: 'bold' }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: tooltipFormatter,
+      confine: true,
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#cccccc',
+      borderWidth: 1,
+      padding: [5, 10],
+      textStyle: { color: '#333', fontSize: 12 }
+    },
+    legend: {
+      data: TIMING_SEGMENT_NAMES,
+      top: 40,
+      show: !isolatedMethod,
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '10%',
+      containLabel: true,
+      top: isolatedMethod ? 70 : 90,
+    },
+    xAxis: {
+      type: 'category',
+      data: POINTS_LABELS,
+      axisLabel: { interval: 0 },
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Time (ms)',
+    },
+    dataZoom: [
+      { type: 'slider', xAxisIndex: 0, start: 0, end: 100, bottom: 10, height: 20 },
+      { type: 'inside', xAxisIndex: 0, start: 0, end: 100 }
+    ],
+    series: seriesData,
+  };
 
-            {activeTab === 'development' && (
-                <>
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Development Environment - DOM Loaded Time (Slow 4G)</h2>
-                        <p className="mb-4 text-gray-600">Lower is better - Time until DOM is ready</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={domLoadedData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }}/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Development Environment - Page Load Time (Slow 4G)</h2>
-                        <p className="mb-4 text-gray-600">Lower is better - Complete page load time</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={pageLoadData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }}/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Local Production Build (10 Charts, 1M datapoints
-                            each)</h2>
-                        <p className="mb-4 text-gray-600">Key performance metrics comparison</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={localProdData.metrics}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Network Transfer Size</h2>
-                        <p className="mb-4 text-gray-600">Data transferred over network</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={localProdData.network}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h2 className="text-xl font-bold mb-2">Chart Refresh Processing Time (Dev, Slow 4G)</h2>
-                        <p className="mb-4 text-gray-600">Lower is better - Shows how performance scales with more
-                            charts</p>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartRefreshData}>
-                                    <CartesianGrid strokeDasharray="3 3"/>
-                                    <XAxis dataKey="name"/>
-                                    <YAxis label={{ value: 'Seconds', angle: -90, position: 'insideLeft' }}/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Bar dataKey="SSR" fill="#8884d8" name="SSR"/>
-                                    <Bar dataKey="Client" fill="#82ca9d" name="Client"/>
-                                    <Bar dataKey="ServerComponents" fill="#ffc658" name="Server Actions"/>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </>
-            )}
-
-            <div>
-                <h2 className="text-xl font-bold mb-2">Best Approach by Scenario</h2>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-300">
-                        <thead>
-                        <tr>
-                            <th className="py-2 px-4 border-b">Scenario</th>
-                            <th className="py-2 px-4 border-b">Best Approach</th>
-                            <th className="py-2 px-4 border-b">Notes</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {recommendations.map((row, index) => (
-                            <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                                <td className="py-2 px-4 border-b">{row.scenario}</td>
-                                <td className="py-2 px-4 border-b font-medium">
-                    <span className={
-                        row.best === 'Client' ? 'text-green-600' :
-                            row.best === 'SSR' ? 'text-purple-600' :
-                                'text-yellow-600'
-                    }>
-                      {row.best}
-                    </span>
-                                </td>
-                                <td className="py-2 px-4 border-b">{row.notes}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    );
+  return options;
 };
 
-export default AnalysisPage;
+export default function PerformanceAnalysisPage() {
+  const [isolatedMethod1, setIsolatedMethod1] = useState<string | null>(null);
+  const [isolatedMethod10, setIsolatedMethod10] = useState<string | null>(null);
+
+  const chartOption1 = useMemo(
+    () => generateStackedTimingChartOption(1, isolatedMethod1),
+    [isolatedMethod1]
+  );
+  const chartOption10 = useMemo(
+    () => generateStackedTimingChartOption(10, isolatedMethod10),
+    [isolatedMethod10]
+  );
+
+  const handleChartClick = (
+    params: any,
+    currentIsolatedMethod: string | null,
+    setIsolatedMethod: React.Dispatch<React.SetStateAction<string | null>>
+  ) => {
+    const clickedMethod = params.componentType === 'series' ? params.stack : null;
+    if (currentIsolatedMethod !== null) {
+      setIsolatedMethod(null);
+    } else if (clickedMethod) {
+      setIsolatedMethod(clickedMethod);
+    }
+  };
+
+  const chartElementStyle = { height: '600px', width: '100%' };
+
+  return (
+    <div className="p-4 font-sans bg-gray-50 min-h-screen">
+      <section className="mb-10 pb-5 border-b border-gray-200">
+        <div className="w-[95%] max-w-6xl mx-auto">
+          <ReactECharts
+            option={chartOption1}
+            style={chartElementStyle}
+            onEvents={{
+              click: (params) => handleChartClick(params, isolatedMethod1, setIsolatedMethod1)
+            }}
+          />
+        </div>
+      </section>
+      <section>
+        <div className="w-[95%] max-w-6xl mx-auto">
+          <ReactECharts
+            option={chartOption10}
+            style={chartElementStyle}
+            onEvents={{
+              click: (params) => handleChartClick(params, isolatedMethod10, setIsolatedMethod10)
+            }}
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
