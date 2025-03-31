@@ -44,11 +44,11 @@ function NavBarContent() {
               <Link href={`/server-actions${queryString}`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/server-actions')}`}>
                 Server Actions
               </Link>
-              <Link href={`/client${queryString}`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/client')}`}>
-                Client
-              </Link>
               <Link href={`/internal-api${queryString}`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/internal-api')}`}>
                 Internal API
+              </Link>
+              <Link href={`/client${queryString}`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/client')}`}>
+                Client
               </Link>
               <a
                 href={`${staticUrl}${queryString}`}
@@ -84,8 +84,8 @@ function NavBarFallback() {
               <Link href="/" className="px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link href="/server" className="px-3 py-2 rounded-md text-sm font-medium">Server</Link>
               <Link href="/server-actions" className="px-3 py-2 rounded-md text-sm font-medium">Server Actions</Link>
-              <Link href="/client" className="px-3 py-2 rounded-md text-sm font-medium">Client</Link>
               <Link href="/internal-api" className="px-3 py-2 rounded-md text-sm font-medium">Internal API</Link>
+              <Link href="/client" className="px-3 py-2 rounded-md text-sm font-medium">Client</Link>
               <span className="px-3 py-2 rounded-md text-sm font-medium">Static Bundle</span>
             </div>
           </div>

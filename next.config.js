@@ -32,6 +32,15 @@ const nextConfig = {
             },
         ];
     },
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/analysis',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 module.exports = nextConfig;
