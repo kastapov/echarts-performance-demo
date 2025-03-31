@@ -35,9 +35,6 @@ function NavBarContent() {
               <span className="text-xl font-bold">ECharts Performance Demo</span>
             </div>
             <div className="ml-10 flex items-baseline space-x-4">
-              <Link href={`/${queryString}`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/')}`}>
-                Home
-              </Link>
               <Link href={`/server${queryString}`} className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/server')}`}>
                 Server
               </Link>
@@ -80,8 +77,6 @@ function NavBarFallback() {
               <span className="text-xl font-bold">ECharts Performance Demo</span>
             </div>
             <div className="ml-10 flex items-baseline space-x-4">
-              {/* Simplified links without dynamic parameters */}
-              <Link href="/" className="px-3 py-2 rounded-md text-sm font-medium">Home</Link>
               <Link href="/server" className="px-3 py-2 rounded-md text-sm font-medium">Server</Link>
               <Link href="/server-actions" className="px-3 py-2 rounded-md text-sm font-medium">Server Actions</Link>
               <Link href="/internal-api" className="px-3 py-2 rounded-md text-sm font-medium">Internal API</Link>
