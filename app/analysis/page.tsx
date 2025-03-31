@@ -613,7 +613,8 @@ export default function PerformanceAnalysisPage() {
                 <p className="text-gray-700 mb-1">Please consider that:</p>
                 <div className="mb-2">
                   <p className="font-medium text-gray-800 mb-1">If you have a <code
-                    className="bg-gray-100 px-1 rounded text-xs">&lt;script src="test.js"&gt;&lt;/script&gt;</code>:</p>
+                    className="bg-gray-100 px-1 rounded text-xs">&lt;script
+                    src=&quot;test.js&quot;&gt;&lt;/script&gt;</code>:</p>
                   <ol className="list-decimal pl-4 text-gray-700">
                     <li>Browser downloads and parses index.html and test.js</li>
                     <li>Browser parses and evaluates script</li>
@@ -623,8 +624,8 @@ export default function PerformanceAnalysisPage() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-800 mb-1">If you have a <code
-                    className="bg-gray-100 px-1 rounded text-xs">&lt;script src="test.js"
-                    async&gt;&lt;/script&gt;</code>:</p>
+                    className="bg-gray-100 px-1 rounded text-xs">&lt;script
+                    src=&quot;test.js&quot; async&gt;&lt;/script&gt;</code>:</p>
                   <ol className="list-decimal pl-4 text-gray-700">
                     <li>Browser downloads and parses index.html</li>
                     <li>Browser will fire a <code
@@ -635,7 +636,6 @@ export default function PerformanceAnalysisPage() {
                 </div>
               </div>
             </div>
-
             <div className="mb-4">
               <h2 className="text-base font-semibold text-indigo-700 mb-2">Load</h2>
               <p className="text-sm text-gray-700 mb-1">
@@ -647,7 +647,6 @@ export default function PerformanceAnalysisPage() {
                   javascript.</p>
               </div>
             </div>
-
             <div className="mb-2">
               <h2 className="text-base font-semibold text-indigo-700 mb-2">Finished</h2>
               <p className="text-sm text-gray-700 mb-1">
@@ -657,8 +656,8 @@ export default function PerformanceAnalysisPage() {
                 className="bg-gray-100 px-1 rounded text-xs">Promise</code> are completed.
               </p>
               <div className="pl-2 border-l-4 border-indigo-200 text-xs">
-                <p className="text-gray-700">In case you have a loop that is checking for updates you'll keep seeing
-                  updates to this value.</p>
+                <p className="text-gray-700">In case you have a loop that is checking for updates you&apos;ll keep
+                  seeing updates to this value.</p>
               </div>
             </div>
           </div>
