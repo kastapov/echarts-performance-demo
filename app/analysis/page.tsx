@@ -1,5 +1,5 @@
 "use client";
-// src/app/performance-analysis/page.tsx
+// src/app/analysis/page.tsx
 
 import React, { useMemo, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
@@ -28,41 +28,356 @@ interface ChartDataItem {
 }
 
 const performanceData: PerformanceDataEntry[] = [
-  { method: "Server", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 437, domContentLoaded: 295, loadTime: 418 },
-  { method: "Server", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 549, domContentLoaded: 420, loadTime: 522 },
-  { method: "Server", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 1300, domContentLoaded: 1260, loadTime: 1270 },
-  { method: "Server", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 7740, domContentLoaded: 7710, loadTime: 7720 },
-  { method: "Server", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 759, domContentLoaded: 360, loadTime: 650 },
-  { method: "Server", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 1140, domContentLoaded: 1080, loadTime: 1120 },
-  { method: "Server", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 5500, domContentLoaded: 5280, loadTime: 5430 },
-  { method: "Server Actions", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 485, domContentLoaded: 31, loadTime: 116 },
-  { method: "Server Actions", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 659, domContentLoaded: 31, loadTime: 115 },
-  { method: "Server Actions", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 1230, domContentLoaded: 35, loadTime: 117 },
-  { method: "Server Actions", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 4720, domContentLoaded: 30, loadTime: 115 },
-  { method: "Server Actions", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 2080, domContentLoaded: 33, loadTime: 137 },
-  { method: "Server Actions", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 3970, domContentLoaded: 30, loadTime: 133 },
-  { method: "Server Actions", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 8400, domContentLoaded: 37, loadTime: 143 },
-  { method: "Client (NextJS) + Internal API", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 345, domContentLoaded: 32, loadTime: 115 },
-  { method: "Client (NextJS) + Internal API", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 489, domContentLoaded: 32, loadTime: 112 },
-  { method: "Client (NextJS) + Internal API", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 977, domContentLoaded: 30, loadTime: 112 },
-  { method: "Client (NextJS) + Internal API", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 2520, domContentLoaded: 34, loadTime: 119 },
-  { method: "Client (NextJS) + Internal API", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 546, domContentLoaded: 34, loadTime: 142 },
-  { method: "Client (NextJS) + Internal API", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 1020, domContentLoaded: 34, loadTime: 145 },
-  { method: "Client (NextJS) + Internal API", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 3500, domContentLoaded: 37, loadTime: 152 },
-  { method: "Client (NextJS) + Direct API", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 277, domContentLoaded: 32, loadTime: 123 },
-  { method: "Client (NextJS) + Direct API", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1782579.2, finishTime: 479, domContentLoaded: 30, loadTime: 121 },
-  { method: "Client (NextJS) + Direct API", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3879731.2, finishTime: 901, domContentLoaded: 29, loadTime: 121 },
-  { method: "Client (NextJS) + Direct API", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24536678.4, finishTime: 2650, domContentLoaded: 31, loadTime: 124 },
-  { method: "Client (NextJS) + Direct API", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1782579.2, finishTime: 376, domContentLoaded: 32, loadTime: 139 },
-  { method: "Client (NextJS) + Direct API", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3879731.2, finishTime: 578, domContentLoaded: 31, loadTime: 143 },
-  { method: "Client (NextJS) + Direct API", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24536678.4, finishTime: 1280, domContentLoaded: 32, loadTime: 142 },
-  { method: "Client (Vite) + Direct API", charts: 1, points: 1000, pointsLabel: "1K", resourceSize: 1363148.8, finishTime: 246, domContentLoaded: 74, loadTime: 95 },
-  { method: "Client (Vite) + Direct API", charts: 1, points: 10000, pointsLabel: "10K", resourceSize: 1572864, finishTime: 530, domContentLoaded: 75, loadTime: 94 },
-  { method: "Client (Vite) + Direct API", charts: 1, points: 100000, pointsLabel: "100K", resourceSize: 3565158.4, finishTime: 804, domContentLoaded: 76, loadTime: 98 },
-  { method: "Client (Vite) + Direct API", charts: 1, points: 1000000, pointsLabel: "1M", resourceSize: 24222105.6, finishTime: 2370, domContentLoaded: 73, loadTime: 93 },
-  { method: "Client (Vite) + Direct API", charts: 10, points: 1000, pointsLabel: "1K", resourceSize: 1572864, finishTime: 335, domContentLoaded: 73, loadTime: 121 },
-  { method: "Client (Vite) + Direct API", charts: 10, points: 10000, pointsLabel: "10K", resourceSize: 3565158.4, finishTime: 561, domContentLoaded: 74, loadTime: 118 },
-  { method: "Client (Vite) + Direct API", charts: 10, points: 100000, pointsLabel: "100K", resourceSize: 24222105.6, finishTime: 1120, domContentLoaded: 74, loadTime: 117 },
+  {
+    method: "Server",
+    charts: 1,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1572864,
+    finishTime: 437,
+    domContentLoaded: 295,
+    loadTime: 418
+  },
+  {
+    method: "Server",
+    charts: 1,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 1782579.2,
+    finishTime: 549,
+    domContentLoaded: 420,
+    loadTime: 522
+  },
+  {
+    method: "Server",
+    charts: 1,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 3879731.2,
+    finishTime: 1300,
+    domContentLoaded: 1260,
+    loadTime: 1270
+  },
+  {
+    method: "Server",
+    charts: 1,
+    points: 1000000,
+    pointsLabel: "1M",
+    resourceSize: 24536678.4,
+    finishTime: 7740,
+    domContentLoaded: 7710,
+    loadTime: 7720
+  },
+  {
+    method: "Server",
+    charts: 10,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1782579.2,
+    finishTime: 759,
+    domContentLoaded: 360,
+    loadTime: 650
+  },
+  {
+    method: "Server",
+    charts: 10,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 3879731.2,
+    finishTime: 1140,
+    domContentLoaded: 1080,
+    loadTime: 1120
+  },
+  {
+    method: "Server",
+    charts: 10,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 24536678.4,
+    finishTime: 5500,
+    domContentLoaded: 5280,
+    loadTime: 5430
+  },
+  {
+    method: "Server Actions",
+    charts: 1,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1572864,
+    finishTime: 485,
+    domContentLoaded: 31,
+    loadTime: 116
+  },
+  {
+    method: "Server Actions",
+    charts: 1,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 1782579.2,
+    finishTime: 659,
+    domContentLoaded: 31,
+    loadTime: 115
+  },
+  {
+    method: "Server Actions",
+    charts: 1,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 3879731.2,
+    finishTime: 1230,
+    domContentLoaded: 35,
+    loadTime: 117
+  },
+  {
+    method: "Server Actions",
+    charts: 1,
+    points: 1000000,
+    pointsLabel: "1M",
+    resourceSize: 24536678.4,
+    finishTime: 4720,
+    domContentLoaded: 30,
+    loadTime: 115
+  },
+  {
+    method: "Server Actions",
+    charts: 10,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1782579.2,
+    finishTime: 2080,
+    domContentLoaded: 33,
+    loadTime: 137
+  },
+  {
+    method: "Server Actions",
+    charts: 10,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 3879731.2,
+    finishTime: 3970,
+    domContentLoaded: 30,
+    loadTime: 133
+  },
+  {
+    method: "Server Actions",
+    charts: 10,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 24536678.4,
+    finishTime: 8400,
+    domContentLoaded: 37,
+    loadTime: 143
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 1,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1572864,
+    finishTime: 345,
+    domContentLoaded: 32,
+    loadTime: 115
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 1,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 1782579.2,
+    finishTime: 489,
+    domContentLoaded: 32,
+    loadTime: 112
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 1,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 3879731.2,
+    finishTime: 977,
+    domContentLoaded: 30,
+    loadTime: 112
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 1,
+    points: 1000000,
+    pointsLabel: "1M",
+    resourceSize: 24536678.4,
+    finishTime: 2520,
+    domContentLoaded: 34,
+    loadTime: 119
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 10,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1782579.2,
+    finishTime: 546,
+    domContentLoaded: 34,
+    loadTime: 142
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 10,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 3879731.2,
+    finishTime: 1020,
+    domContentLoaded: 34,
+    loadTime: 145
+  },
+  {
+    method: "Client (NextJS) + Internal API",
+    charts: 10,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 24536678.4,
+    finishTime: 3500,
+    domContentLoaded: 37,
+    loadTime: 152
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 1,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1572864,
+    finishTime: 277,
+    domContentLoaded: 32,
+    loadTime: 123
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 1,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 1782579.2,
+    finishTime: 479,
+    domContentLoaded: 30,
+    loadTime: 121
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 1,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 3879731.2,
+    finishTime: 901,
+    domContentLoaded: 29,
+    loadTime: 121
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 1,
+    points: 1000000,
+    pointsLabel: "1M",
+    resourceSize: 24536678.4,
+    finishTime: 2650,
+    domContentLoaded: 31,
+    loadTime: 124
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 10,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1782579.2,
+    finishTime: 376,
+    domContentLoaded: 32,
+    loadTime: 139
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 10,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 3879731.2,
+    finishTime: 578,
+    domContentLoaded: 31,
+    loadTime: 143
+  },
+  {
+    method: "Client (NextJS) + Direct API",
+    charts: 10,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 24536678.4,
+    finishTime: 1280,
+    domContentLoaded: 32,
+    loadTime: 142
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 1,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1363148.8,
+    finishTime: 246,
+    domContentLoaded: 74,
+    loadTime: 95
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 1,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 1572864,
+    finishTime: 530,
+    domContentLoaded: 75,
+    loadTime: 94
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 1,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 3565158.4,
+    finishTime: 804,
+    domContentLoaded: 76,
+    loadTime: 98
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 1,
+    points: 1000000,
+    pointsLabel: "1M",
+    resourceSize: 24222105.6,
+    finishTime: 2370,
+    domContentLoaded: 73,
+    loadTime: 93
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 10,
+    points: 1000,
+    pointsLabel: "1K",
+    resourceSize: 1572864,
+    finishTime: 335,
+    domContentLoaded: 73,
+    loadTime: 121
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 10,
+    points: 10000,
+    pointsLabel: "10K",
+    resourceSize: 3565158.4,
+    finishTime: 561,
+    domContentLoaded: 74,
+    loadTime: 118
+  },
+  {
+    method: "Client (Vite) + Direct API",
+    charts: 10,
+    points: 100000,
+    pointsLabel: "100K",
+    resourceSize: 24222105.6,
+    finishTime: 1120,
+    domContentLoaded: 74,
+    loadTime: 117
+  },
 ];
 
 const ALL_METHODS = [
@@ -260,28 +575,95 @@ export default function PerformanceAnalysisPage() {
 
   return (
     <div className="p-4 font-sans bg-gray-50 min-h-screen">
-      <section className="mb-10 pb-5 border-b border-gray-200">
-        <div className="w-[95%] max-w-6xl mx-auto">
-          <ReactECharts
-            option={chartOption1}
-            style={chartElementStyle}
-            onEvents={{
-              click: (params) => handleChartClick(params, isolatedMethod1, setIsolatedMethod1)
-            }}
-          />
+      <div className="flex flex-wrap">
+        <div className="w-full lg:w-8/12">
+          <section className="mb-10 pb-5 border-b border-gray-200">
+            <div className="w-full">
+              <ReactECharts
+                option={chartOption1}
+                style={chartElementStyle}
+                onEvents={{
+                  click: (params) => handleChartClick(params, isolatedMethod1, setIsolatedMethod1)
+                }}
+              />
+            </div>
+          </section>
+          <section className="mb-10">
+            <div className="w-full">
+              <ReactECharts
+                option={chartOption10}
+                style={chartElementStyle}
+                onEvents={{
+                  click: (params) => handleChartClick(params, isolatedMethod10, setIsolatedMethod10)
+                }}
+              />
+            </div>
+          </section>
         </div>
-      </section>
-      <section>
-        <div className="w-[95%] max-w-6xl mx-auto">
-          <ReactECharts
-            option={chartOption10}
-            style={chartElementStyle}
-            onEvents={{
-              click: (params) => handleChartClick(params, isolatedMethod10, setIsolatedMethod10)
-            }}
-          />
+        <div className="w-full lg:w-4/12 lg:pl-6">
+          <div className="bg-white rounded-lg shadow-md p-4 lg:sticky lg:top-8">
+            <h1 className="text-lg font-bold text-gray-800 mb-4">Browser Event Timeline</h1>
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-indigo-700 mb-2">DomContentLoaded</h2>
+              <p className="text-sm text-gray-700 mb-2">
+                The <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">DomContentLoaded</code> event is fired
+                when the initial HTML document has been completely downloaded and parsed.
+              </p>
+              <div className="pl-2 border-l-4 border-indigo-200 text-xs">
+                <p className="text-gray-700 mb-1">Please consider that:</p>
+                <div className="mb-2">
+                  <p className="font-medium text-gray-800 mb-1">If you have a <code
+                    className="bg-gray-100 px-1 rounded text-xs">&lt;script src="test.js"&gt;&lt;/script&gt;</code>:</p>
+                  <ol className="list-decimal pl-4 text-gray-700">
+                    <li>Browser downloads and parses index.html and test.js</li>
+                    <li>Browser parses and evaluates script</li>
+                    <li>Browser will fire a <code className="bg-gray-100 px-1 rounded text-xs">DomContentLoaded</code>
+                    </li>
+                  </ol>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800 mb-1">If you have a <code
+                    className="bg-gray-100 px-1 rounded text-xs">&lt;script src="test.js"
+                    async&gt;&lt;/script&gt;</code>:</p>
+                  <ol className="list-decimal pl-4 text-gray-700">
+                    <li>Browser downloads and parses index.html</li>
+                    <li>Browser will fire a <code
+                      className="bg-gray-100 px-1 rounded text-xs">DomContentLoaded</code> and in the meanwhile
+                      downloads the js
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-indigo-700 mb-2">Load</h2>
+              <p className="text-sm text-gray-700 mb-1">
+                The <code className="bg-gray-100 px-1 rounded text-xs">Load</code> event is fired when the page is fully
+                loaded, so when HTML and the BLOCKING resources are downloaded and parsed.
+              </p>
+              <div className="pl-2 border-l-4 border-indigo-200 text-xs">
+                <p className="text-gray-700">The BLOCKING resources are CSS and Javascript. The NOT BLOCKING is async
+                  javascript.</p>
+              </div>
+            </div>
+
+            <div className="mb-2">
+              <h2 className="text-base font-semibold text-indigo-700 mb-2">Finished</h2>
+              <p className="text-sm text-gray-700 mb-1">
+                The <code className="bg-gray-100 px-1 rounded text-xs">Finished</code> event is fired when HTML +
+                BLOCKING + NON BLOCKING resources are downloaded | parsed and all the <code
+                className="bg-gray-100 px-1 rounded text-xs">XMLHttpRequest()</code> and <code
+                className="bg-gray-100 px-1 rounded text-xs">Promise</code> are completed.
+              </p>
+              <div className="pl-2 border-l-4 border-indigo-200 text-xs">
+                <p className="text-gray-700">In case you have a loop that is checking for updates you'll keep seeing
+                  updates to this value.</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
